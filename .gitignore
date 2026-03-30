@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Donnees sensibles
+confidentiel/
+
+# Notes internes (non publiques)
+notes-internes/
+*.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Modeles GLiNER (trop volumineux)
+models/
+*.bin
+*.safetensors
+
+# Alias modèle (symlink, ne pas commiter)
+modele-gliner2
+venv-link

@@ -1,0 +1,68 @@
+name: "Navigation entre les pages"
+description: "Verifier que la navigation par hash fonctionne et que toutes les pages sont accessibles"
+priority: high
+requires_auth: false
+timeout: 45s
+tags: [navigation, ui, core]
+
+steps:
+  - action: open
+    url: "{base_url}"
+
+  - action: wait
+    duration: 2s
+
+  - action: llm-check
+    description: "Page d'accueil chargee"
+    criteria: "Le header DSFR avec le logo 'Gouvernement' et le titre 'Anonymisation PII' est visible. Le menu de navigation avec les 8 sections est present. La page Pseudonymisation est affichee par defaut."
+    severity: critical
+    screenshot: "accueil.png"
+
+  # Naviguer vers chaque page
+  - action: open
+    url: "{base_url}/#import-fichier"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page import fichier accessible"
+    criteria: "Le titre 'Import fichier' est visible. Le fil d'Ariane indique 'Import fichier'."
+    severity: high
+    screenshot: "nav-import.png"
+
+  - action: open
+    url: "{base_url}/#analyse"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page analyse accessible"
+    criteria: "Le titre 'Analyse de fichier' est visible."
+    severity: high
+    screenshot: "nav-analyse.png"
+
+  - action: open
+    url: "{base_url}/#scoring-rgpd"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page scoring accessible"
+    criteria: "Le titre 'Scoring RGPD' est visible."
+    severity: high
+    screenshot: "nav-scoring.png"
+
+  - action: open
+    url: "{base_url}/#diagnostic"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page diagnostic accessible"
+    criteria: "Le titre 'Diagnostic' est visible."
+    severity: high
+    screenshot: "nav-diagnostic.png"

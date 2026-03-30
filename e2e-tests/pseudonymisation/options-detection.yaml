@@ -1,0 +1,55 @@
+name: "Options de detection"
+description: "Verifier les options mode de detection (hybrid, regex, ner) et mode de sortie (mask, anon)"
+priority: medium
+requires_auth: false
+timeout: 45s
+tags: [options, pseudonymisation]
+
+data:
+  pii_text: "Jean Dupont habite au 12 rue de la Paix, 75002 Paris. Email : jean.dupont@gmail.com"
+
+steps:
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#input-texte"
+    value: "{data.pii_text}"
+
+  # Test mode regex seul
+  - action: click
+    target: "#mode-regex"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Detection regex fonctionne"
+    criteria: "Le textarea de sortie contient du texte pseudonymise. Les entites detectees sont affichees (nombre > 0)."
+    severity: high
+    screenshot: "detection-regex.png"
+
+  # Test mode anonymisation ***
+  - action: click
+    target: "#output-anon"
+
+  - action: click
+    target: "#mode-hybrid"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Mode anonymisation fonctionne"
+    criteria: "Le textarea de sortie contient des *** a la place des donnees personnelles, pas de jetons [TYPE_N]."
+    severity: high
+    screenshot: "detection-anon.png"

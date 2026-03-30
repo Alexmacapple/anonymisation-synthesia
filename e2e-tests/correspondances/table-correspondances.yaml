@@ -1,0 +1,51 @@
+name: "Table des correspondances"
+description: "Verifier l'affichage et la recherche dans la table des correspondances apres pseudonymisation"
+priority: medium
+requires_auth: false
+timeout: 45s
+tags: [correspondances, ui]
+
+data:
+  pii_text: "Pierre Durand, email pierre.durand@example.com, telephone 0296507550"
+
+steps:
+  # D'abord pseudonymiser pour generer des correspondances
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#input-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  # Naviguer vers correspondances
+  - action: open
+    url: "{base_url}/#correspondances"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Correspondances affichees"
+    criteria: "Le tableau contient des lignes avec les colonnes Type, Jeton et Valeur originale. Au moins une correspondance de type personne est visible."
+    severity: high
+    screenshot: "correspondances-table.png"
+
+  # Tester la recherche
+  - action: fill
+    target: "#search-correspondances"
+    value: "personne"
+
+  - action: llm-check
+    description: "Recherche filtre les resultats"
+    criteria: "Le tableau ne montre que les correspondances contenant 'personne' dans le type, le jeton ou la valeur."
+    severity: medium
+    screenshot: "correspondances-recherche.png"

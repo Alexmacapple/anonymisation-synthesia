@@ -1,0 +1,32 @@
+name: "Apercu dry-run"
+description: "Lancer un apercu (dry-run) sur 100 enregistrements max sans ecriture"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [fichier, dry-run]
+
+steps:
+  - action: open
+    url: "{base_url}/#import-fichier"
+
+  - action: wait
+    duration: 1s
+
+  - action: click
+    target: "#import-mode-local"
+
+  - action: fill
+    target: "#input-path"
+    value: "tests/fixtures/golden-api-loic.json"
+
+  - action: click
+    target: "#btn-dry-run"
+
+  - action: wait
+    duration: 10s
+
+  - action: llm-check
+    description: "Apercu dry-run affiche"
+    criteria: "Les resultats sont affiches. Le chemin de sortie indique 'Apercu' ou pas de fichier ecrit. Pas de message d'erreur."
+    severity: high
+    screenshot: "import-dry-run.png"

@@ -1,0 +1,30 @@
+name: "Validation de texte anonymise"
+description: "Verifier qu'un texte anonymise ne contient plus de PII detectables"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [diagnostic, validation]
+
+steps:
+  - action: open
+    url: "{base_url}/#diagnostic"
+
+  - action: wait
+    duration: 1s
+
+  # Tester un texte correctement anonymise
+  - action: fill
+    target: "#validate-texte"
+    value: "[PERSONNE_1] a contacte [PERSONNE_2] le 8 juin. Email : [EMAIL_1]"
+
+  - action: click
+    target: "#btn-valider"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Validation positive"
+    criteria: "Un callout vert ou un message positif indique qu'aucune fuite n'a ete detectee. Le texte semble correctement anonymise."
+    severity: high
+    screenshot: "diagnostic-validation-ok.png"

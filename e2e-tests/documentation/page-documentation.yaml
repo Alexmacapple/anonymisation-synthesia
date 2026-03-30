@@ -1,0 +1,19 @@
+name: "Page documentation"
+description: "Verifier que la page documentation se charge correctement"
+priority: low
+requires_auth: false
+timeout: 15s
+tags: [documentation, ui]
+
+steps:
+  - action: open
+    url: "{base_url}/#documentation"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page documentation chargee"
+    criteria: "La page documentation est visible avec du contenu (titres, texte, listes). Pas d'ecran blanc ni de message d'erreur."
+    severity: medium
+    screenshot: "documentation-load.png"

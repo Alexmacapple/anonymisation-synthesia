@@ -1,0 +1,33 @@
+{
+  "description": "Résultats de référence pour les tests de non-régression. Données fictives basées sur le format SignalConso.",
+  "enregistrements": [
+    {
+      "doar_ident": 1,
+      "texte": "Nom : jean martin\nEmail : jean.martin@example.com\nTéléphone : 09 75 73 94 62\nCode postal : 94110",
+      "entites_attendues": [
+        {"text": "jean martin", "type": "personne"},
+        {"text": "jean.martin@example.com", "type": "email_txt"},
+        {"text": "09 75 73 94 62", "type": "tel_txt"},
+        {"text": "94110", "type": "cp_txt"}
+      ]
+    },
+    {
+      "doar_ident": 2,
+      "texte": "Nom : Sophie LAMBERT\nEmail : sophie.lambert@example.com\nTéléphone : 0296507550",
+      "entites_attendues": [
+        {"text": "Sophie LAMBERT", "type": "personne"},
+        {"text": "sophie.lambert@example.com", "type": "email_txt"},
+        {"text": "0296507550", "type": "tel_txt"}
+      ]
+    },
+    {
+      "doar_ident": 3,
+      "texte": "Nom : Pierre Durand\nEmail : pierre.durand@example.com\nDescription : J'ai contacté le 8 juin Sosh par téléphone. Alexandra m'a proposé un tarif.",
+      "entites_attendues": [
+        {"text": "Pierre Durand", "type": "personne"},
+        {"text": "pierre.durand@example.com", "type": "email_txt"},
+        {"text": "Alexandra", "type": "personne"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+name: "Restauration de texte pseudonymise"
+description: "Pseudonymiser un texte puis le restaurer via la page Restauration"
+priority: high
+requires_auth: false
+timeout: 45s
+tags: [restauration, core]
+
+data:
+  pii_text: "Sophie LAMBERT, email sophie.lambert@example.com"
+
+steps:
+  # Pseudonymiser d'abord pour charger les correspondances en memoire
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#input-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  # Copier le texte pseudonymise
+  - action: eval
+    js: "document.getElementById('output-texte').value"
+
+  # Naviguer vers restauration et coller le texte pseudonymise
+  - action: open
+    url: "{base_url}/#restauration"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page restauration chargee"
+    criteria: "Le titre 'Restauration' est visible. Les deux textareas (pseudonymise et restaure) sont presents. Le bouton 'Restaurer' est visible."
+    severity: critical
+    screenshot: "restauration-load.png"
+
+  # Remplir avec un texte pseudonymise type
+  - action: fill
+    target: "#input-restauration"
+    value: "[PERSONNE_1], email [EMAIL_1]"
+
+  - action: click
+    target: "#btn-restaurer"
+
+  - action: wait
+    duration: 3s
+
+  - action: llm-check
+    description: "Texte restaure ou message d'avertissement"
+    criteria: "Soit le textarea de sortie contient le texte restaure avec les vraies valeurs, soit un message d'avertissement indique qu'il faut pseudonymiser d'abord. Pas d'erreur technique."
+    severity: high
+    screenshot: "restauration-resultat.png"

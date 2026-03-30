@@ -1,0 +1,49 @@
+name: "Upload et traitement de fichier"
+description: "Telecharger un fichier JSON via upload, lancer le traitement et verifier les resultats"
+priority: high
+requires_auth: false
+timeout: 60s
+tags: [core, fichier, upload]
+
+data:
+  test_file: "tests/fixtures/golden-api-loic.json"
+
+steps:
+  - action: open
+    url: "{base_url}/#import-fichier"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page import fichier chargee"
+    criteria: "Le titre 'Import fichier' est visible. Le formulaire d'upload avec les formats acceptes est present. Les boutons 'Traiter le fichier' et 'Apercu' sont visibles."
+    severity: critical
+    screenshot: "import-fichier-load.png"
+
+  # Upload du fichier de test
+  - action: upload
+    target: "#file-upload"
+    files: "{data.test_file}"
+
+  - action: wait
+    duration: 3s
+
+  - action: llm-check
+    description: "Fichier uploade avec succes"
+    criteria: "Un message de confirmation indique que le fichier a ete televerse. Le statut d'upload est visible avec le nom du fichier et sa taille."
+    severity: high
+    screenshot: "import-upload-ok.png"
+
+  # Lancer le traitement
+  - action: click
+    target: "#btn-traiter-fichier"
+
+  - action: wait
+    duration: 10s
+
+  - action: llm-check
+    description: "Resultats du traitement affiches"
+    criteria: "Les tuiles Total, Traites, Remplacements et Duree affichent des valeurs. Un lien de telechargement du resultat est visible. Pas de message d'erreur."
+    severity: critical
+    screenshot: "import-traitement-ok.png"

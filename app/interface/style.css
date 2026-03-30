@@ -1,0 +1,139 @@
+/* Styles complémentaires à DSFR */
+
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+}
+
+/* Espacements entre sections */
+.page h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.page .fr-fieldset {
+    margin-bottom: 1.5rem;
+}
+
+.page .fr-input-group {
+    margin-bottom: 1rem;
+}
+
+.page .fr-upload-group {
+    margin-bottom: 1rem;
+}
+
+/* Tableaux : pas de troncature */
+.fr-table table {
+    table-layout: auto;
+    width: 100%;
+}
+
+.fr-table td,
+.fr-table th {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: none;
+}
+
+.fr-table code {
+    word-break: break-all;
+    font-size: 0.85em;
+}
+
+/* Tuiles statistiques */
+.fr-tile .fr-tile__body {
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.fr-tile .fr-tile__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-mention-grey);
+    margin: 0 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.fr-tile .fr-tile__detail {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin: 0;
+    color: var(--text-title-grey);
+}
+
+/* Textarea readonly */
+textarea[readonly] {
+    background: var(--background-alt-grey);
+}
+
+/* Callout résultats */
+.fr-callout {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.fr-callout p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+/* Navigation active */
+.fr-nav__link[aria-current="page"] {
+    color: var(--text-active-blue-france);
+}
+
+/* Badge scoring */
+.fr-badge--nul { --badge-color: var(--text-default-success); background-color: var(--background-contrast-success); }
+.fr-badge--faible { --badge-color: var(--text-default-info); background-color: var(--background-contrast-info); }
+.fr-badge--modere { --badge-color: var(--text-default-warning); background-color: var(--background-contrast-warning); }
+.fr-badge--eleve { --badge-color: var(--text-label-orange-terre-battue); background-color: var(--background-contrast-orange-terre-battue); }
+.fr-badge--critique { --badge-color: var(--text-default-error); background-color: var(--background-contrast-error); }
+
+/* Boutons de téléchargement */
+#file-download-zone {
+    margin-top: 1rem;
+}
+
+#file-download-zone a {
+    margin-right: 0.5rem;
+}
+
+/* Barre de progression */
+progress {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    border: none;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+    margin: 1rem 0;
+}
+progress::-webkit-progress-bar {
+    background: var(--background-alt-grey);
+    border-radius: 4px;
+}
+progress::-webkit-progress-value {
+    background: var(--background-action-high-blue-france);
+    border-radius: 4px;
+}
+progress::-moz-progress-bar {
+    background: var(--background-action-high-blue-france);
+    border-radius: 4px;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .fr-grid-row--gutters > [class*="fr-col-md-"] {
+        margin-bottom: 1rem;
+    }
+
+    .fr-nav__list {
+        flex-wrap: wrap;
+    }
+}

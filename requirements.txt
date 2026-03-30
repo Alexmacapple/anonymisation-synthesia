@@ -1,0 +1,23 @@
+# NER (GLiNER2 v1.2.5 — optimisations Loïc : fp16, torch.compile, 1.2x-2x speedup)
+gliner2>=1.2.5
+torch
+
+# API
+fastapi>=0.115
+uvicorn[standard]>=0.34
+pydantic-settings
+
+# Formats (optionnels)
+openpyxl        # XLSX
+odfpy           # ODS/ODT
+python-docx     # DOCX
+pdfplumber      # PDF
+ijson           # JSON streaming
+
+# CLI
+tqdm
+
+# Tests
+pytest
+pytest-asyncio
+httpx

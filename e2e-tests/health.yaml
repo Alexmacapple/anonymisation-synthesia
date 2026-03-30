@@ -1,0 +1,19 @@
+name: "Health check API"
+description: "Verifier que le endpoint /health repond correctement"
+priority: critical
+requires_auth: false
+timeout: 15s
+tags: [api, health, smoke]
+
+steps:
+  - action: open
+    url: "{base_url}/health"
+
+  - action: wait
+    duration: 2s
+
+  - action: llm-check
+    description: "Health check repond"
+    criteria: "La page affiche du JSON contenant 'status': 'ok', une version et des informations sur le service NER et les dictionnaires."
+    severity: critical
+    screenshot: "health.png"

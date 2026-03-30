@@ -1,0 +1,38 @@
+name: "Comparaison des moteurs de detection"
+description: "Comparer les resultats regex vs NER vs hybrid sur le meme texte"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [diagnostic, comparaison]
+
+data:
+  pii_text: "Pierre Durand a contacte Alexandra le 8 juin. Email : pierre.durand@example.com"
+
+steps:
+  - action: open
+    url: "{base_url}/#diagnostic"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page diagnostic chargee"
+    criteria: "Le titre 'Diagnostic' est visible. Le textarea de comparaison et le bouton 'Comparer' sont presents."
+    severity: critical
+    screenshot: "diagnostic-load.png"
+
+  - action: fill
+    target: "#compare-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-comparer"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Comparaison des moteurs affichee"
+    criteria: "Les compteurs regex, NER et hybrid sont affiches avec des nombres. L'apport NER ou regex supplementaire est mentionne. Le tableau des entites hybrid est visible avec les colonnes Texte, Type, Source, Score."
+    severity: high
+    screenshot: "diagnostic-comparaison.png"

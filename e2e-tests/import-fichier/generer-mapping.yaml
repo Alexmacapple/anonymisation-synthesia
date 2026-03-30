@@ -1,0 +1,32 @@
+name: "Generation automatique de mapping"
+description: "Generer un mapping automatiquement a partir d'un fichier uploade"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [fichier, mapping]
+
+steps:
+  - action: open
+    url: "{base_url}/#import-fichier"
+
+  - action: wait
+    duration: 1s
+
+  - action: click
+    target: "#import-mode-local"
+
+  - action: fill
+    target: "#input-path"
+    value: "tests/fixtures/golden-api-loic.json"
+
+  - action: click
+    target: "#btn-generer-mapping"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Mapping genere dans le textarea"
+    criteria: "Le textarea de mapping JSON contient un objet JSON avec 'champs_sensibles' ou 'texte_libre'. Le message de succes est affiche."
+    severity: high
+    screenshot: "import-mapping-genere.png"

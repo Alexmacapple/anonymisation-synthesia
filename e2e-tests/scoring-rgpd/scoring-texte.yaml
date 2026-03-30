@@ -1,0 +1,38 @@
+name: "Scoring RGPD d'un texte"
+description: "Evaluer le niveau de risque RGPD d'un texte contenant des PII"
+priority: high
+requires_auth: false
+timeout: 30s
+tags: [scoring, rgpd, core]
+
+data:
+  pii_text: "Jean Dupont, ne le 15/03/1985, NIR 1 85 03 75 012 456 78, habite 12 rue de la Paix 75002 Paris. Email : jean.dupont@gmail.com"
+
+steps:
+  - action: open
+    url: "{base_url}/#scoring-rgpd"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page scoring chargee"
+    criteria: "Le titre 'Scoring RGPD' est visible. Le textarea et le bouton 'Evaluer le risque' sont presents."
+    severity: critical
+    screenshot: "scoring-load.png"
+
+  - action: fill
+    target: "#scoring-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-scorer-texte"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Score RGPD affiche"
+    criteria: "Les tuiles Score RGPD, Niveau et Entites affichent des valeurs non nulles. Le niveau de risque est MODERE, ELEVE ou CRITIQUE (le texte contient beaucoup de PII). Un tableau de detail par categorie est visible."
+    severity: critical
+    screenshot: "scoring-resultat.png"

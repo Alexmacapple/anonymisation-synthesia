@@ -1,0 +1,18 @@
+{
+  "description": "Réclamations SignalConso",
+  "structure": {
+    "unwrap": {"field": "RCLMFicheReportJsonSC"}
+  },
+  "champs_sensibles": {
+    "Report.Firstname": {"type": "prenom", "jeton": "PRENOM"},
+    "Report.Lastname": {"type": "nom", "jeton": "NOM"},
+    "Report.Email": {"type": "email", "jeton": "EMAIL"},
+    "Report.ConsumerPhone": {"type": "tel", "jeton": "TEL"},
+    "Report.Phone": {"type": "tel", "jeton": "TEL"},
+    "Report.PostalCode": {"type": "cp", "jeton": "CP"}
+  },
+  "texte_libre": ["Report.Question", "Report.Details[].Value"],
+  "lookup_noms": {"prenom": "Report.Firstname", "nom": "Report.Lastname"},
+  "whitelist": ["ORANGE", "SFR", "FREE", "BOUYGUES", "SOSH"],
+  "blacklist": []
+}

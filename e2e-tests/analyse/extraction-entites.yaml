@@ -1,0 +1,32 @@
+name: "Extraction d'entites PII"
+description: "Extraire les entites PII d'un texte sans pseudonymiser"
+priority: high
+requires_auth: false
+timeout: 30s
+tags: [analyse, extraction, core]
+
+data:
+  pii_text: "Sophie LAMBERT, email sophie.lambert@example.com, telephone 0296507550"
+
+steps:
+  - action: open
+    url: "{base_url}/#analyse"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#extract-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-extraire"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Entites PII extraites"
+    criteria: "Le tableau 'Entites detectees' est visible et contient des lignes. Au moins une entite de type 'personne' et une de type 'email_txt' sont detectees. Les colonnes Texte, Type, Source et Score sont remplies."
+    severity: critical
+    screenshot: "analyse-extraction.png"

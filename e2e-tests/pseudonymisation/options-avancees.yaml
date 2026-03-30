@@ -1,0 +1,44 @@
+name: "Options avancees (fort, tech, whitelist)"
+description: "Verifier le mode fort, la detection technique et la whitelist/blacklist"
+priority: medium
+requires_auth: false
+timeout: 45s
+tags: [options, pseudonymisation]
+
+data:
+  pii_text: "Mme Dupont de chez ORANGE a envoye un email depuis 192.168.1.1"
+
+steps:
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#input-texte"
+    value: "{data.pii_text}"
+
+  # Activer mode fort + detection technique
+  - action: click
+    target: "#opt-fort"
+
+  - action: click
+    target: "#opt-tech"
+
+  # Whitelist ORANGE
+  - action: fill
+    target: "#whitelist"
+    value: "ORANGE"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Options avancees appliquees"
+    criteria: "Le texte de sortie contient encore ORANGE (whitelist respectee). L'adresse IP 192.168.1.1 est masquee (detection technique activee). Dupont est masquee."
+    severity: high
+    screenshot: "options-avancees.png"

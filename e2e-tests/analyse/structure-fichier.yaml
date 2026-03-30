@@ -1,0 +1,35 @@
+name: "Analyse de structure de fichier"
+description: "Analyser la structure d'un fichier et afficher les champs detectes"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [analyse, fichier]
+
+steps:
+  - action: open
+    url: "{base_url}/#analyse"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page analyse chargee"
+    criteria: "Le titre 'Analyse de fichier' est visible. Le champ 'Chemin du fichier' et le bouton 'Analyser la structure' sont presents."
+    severity: critical
+    screenshot: "analyse-load.png"
+
+  - action: fill
+    target: "#analyse-path"
+    value: "tests/fixtures/golden-api-loic.json"
+
+  - action: click
+    target: "#btn-analyser"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Structure du fichier affichee"
+    criteria: "Les tuiles Format, Enregistrements et Champs affichent des valeurs. Le tableau 'Structure du fichier' liste les champs avec leur type et un exemple. Le format est '.json'."
+    severity: high
+    screenshot: "analyse-structure.png"

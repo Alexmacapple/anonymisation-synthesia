@@ -1,0 +1,38 @@
+name: "Pseudonymisation de texte simple"
+description: "Coller un texte PII, lancer la pseudonymisation et verifier le resultat"
+priority: high
+requires_auth: false
+timeout: 30s
+tags: [core, pseudonymisation]
+
+data:
+  pii_text: "Nom : Pierre Durand\nEmail : pierre.durand@example.com\nTelephone : 0296507550\nCode postal : 94110"
+
+steps:
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: llm-check
+    description: "Page pseudonymisation chargee"
+    criteria: "Le titre 'Pseudonymisation de texte' est visible, le textarea source est present"
+    severity: critical
+    screenshot: "pseudonymisation-load.png"
+
+  - action: fill
+    target: "#input-texte"
+    value: "{data.pii_text}"
+
+  - action: click
+    target: "#btn-pseudonymise"
+
+  - action: wait
+    duration: 5s
+
+  - action: llm-check
+    description: "Resultat de pseudonymisation affiche"
+    criteria: "Le textarea de sortie contient du texte avec des jetons [PERSONNE_1] ou [EMAIL_1] ou ***. Les tuiles Entites, Score RGPD et Niveau affichent des valeurs non nulles. Pas de message d'erreur."
+    severity: critical
+    screenshot: "pseudonymisation-result.png"

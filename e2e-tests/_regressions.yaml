@@ -1,0 +1,7 @@
+# e2e-tests/_regressions.yaml — Known failures and regressions
+# Add test references here when a test fails consistently
+# Format:
+#   - test: "<path/to/test.yaml>"
+#     issue: "<description>"
+#     date: "YYYY-MM-DD"
+regressions: []

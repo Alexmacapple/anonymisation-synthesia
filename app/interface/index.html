@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="fr" data-fr-scheme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymisation-synthesia</title>
+    <link rel="stylesheet" href="/static/dsfr/css/dsfr.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header role="banner" class="fr-header">
+        <div class="fr-header__body">
+            <div class="fr-container">
+                <div class="fr-header__body-row">
+                    <div class="fr-header__brand fr-enlarge-link">
+                        <div class="fr-header__brand-top">
+                            <div class="fr-header__logo">
+                                <p class="fr-logo">Gouvernement</p>
+                            </div>
+                        </div>
+                        <div class="fr-header__service">
+                            <a href="/" title="Anonymisation PII — Accueil">
+                                <p class="fr-header__service-title">Anonymisation PII</p>
+                            </a>
+                            <p class="fr-header__service-tagline">GLiNER2 + regex — traitement 100 % local</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fr-header__menu">
+            <div class="fr-container">
+                <nav class="fr-nav" role="navigation" aria-label="Menu principal">
+                    <ul class="fr-nav__list">
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#diagnostic" aria-current="page">Diagnostic</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#pseudonymisation">Pseudonymisation</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#import-fichier">Import fichier</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#analyse">Analyse</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#scoring-rgpd">Scoring RGPD</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#correspondances">Correspondances</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#restauration">Restauration</a>
+                        </li>
+                        <li class="fr-nav__item">
+                            <a class="fr-nav__link" href="#documentation">Documentation</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main role="main" id="main" class="fr-container fr-my-4w">
+
+        <!-- Fil d'Ariane -->
+        <nav role="navigation" class="fr-breadcrumb" aria-label="vous êtes ici">
+            <button class="fr-breadcrumb__button" aria-expanded="false" aria-controls="breadcrumb-list">Voir le fil d'Ariane</button>
+            <div class="fr-collapse" id="breadcrumb-list">
+                <ol class="fr-breadcrumb__list">
+                    <li>
+                        <a class="fr-breadcrumb__link" href="/">Accueil</a>
+                    </li>
+                    <li>
+                        <a class="fr-breadcrumb__link" aria-current="page" id="breadcrumb-current">Pseudonymisation</a>
+                    </li>
+                </ol>
+            </div>
+        </nav>
+
+        <!-- Page : Pseudonymisation texte -->
+        <section id="page-pseudonymisation" class="page" style="display:none;">
+            <h1>Pseudonymisation de texte</h1>
+            <p class="fr-text--sm">Collez votre texte, choisissez les options, et lancez la pseudonymisation. Aucune donnée ne quitte votre machine.</p>
+
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="input-texte">Texte source</label>
+                        <textarea class="fr-input" id="input-texte" rows="12" placeholder="Collez votre texte ici…"></textarea>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="output-texte">Texte anonymisé</label>
+                        <textarea class="fr-input" id="output-texte" rows="12" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-4">
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend">Mode de détection</legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-radio-group">
+                                <input type="radio" id="mode-hybrid" name="detection-mode" value="hybrid" checked>
+                                <label class="fr-label" for="mode-hybrid">Hybrid (regex + NER)</label>
+                            </div>
+                            <div class="fr-radio-group">
+                                <input type="radio" id="mode-regex" name="detection-mode" value="regex">
+                                <label class="fr-label" for="mode-regex">Regex seul</label>
+                            </div>
+                            <div class="fr-radio-group">
+                                <input type="radio" id="mode-ner" name="detection-mode" value="ner">
+                                <label class="fr-label" for="mode-ner">NER seul (GLiNER2)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend">Mode de sortie</legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-radio-group">
+                                <input type="radio" id="output-mask" name="output-mode" value="mask" checked>
+                                <label class="fr-label" for="output-mask">Masquer [TYPE_N]</label>
+                            </div>
+                            <div class="fr-radio-group">
+                                <input type="radio" id="output-anon" name="output-mode" value="anon">
+                                <label class="fr-label" for="output-anon">Anonymiser ***</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <fieldset class="fr-fieldset">
+                        <legend class="fr-fieldset__legend">Options</legend>
+                        <div class="fr-fieldset__content">
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="opt-fort" name="fort">
+                                <label class="fr-label" for="opt-fort">Mode fort</label>
+                            </div>
+                            <div class="fr-checkbox-group">
+                                <input type="checkbox" id="opt-tech" name="tech">
+                                <label class="fr-label" for="opt-tech">Détection technique</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <!-- Whitelist / Blacklist -->
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="whitelist">Whitelist (mots à ne jamais pseudonymiser, séparés par virgule)</label>
+                        <input class="fr-input" type="text" id="whitelist" placeholder="ORANGE, SFR, FREE">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="blacklist">Blacklist (mots à toujours pseudonymiser)</label>
+                        <input class="fr-input" type="text" id="blacklist" placeholder="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="fr-mt-2w">
+                <button class="fr-btn" id="btn-pseudonymise">Pseudonymiser</button>
+                <button class="fr-btn fr-btn--secondary fr-ml-2w" id="btn-clear">Effacer</button>
+            </div>
+
+            <!-- Resultats -->
+            <div id="results-zone" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile">
+                            <div class="fr-tile__body">
+                                <h3 class="fr-tile__title">Entités</h3>
+                                <p class="fr-tile__detail" id="stat-entites">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile">
+                            <div class="fr-tile__body">
+                                <h3 class="fr-tile__title">Score RGPD</h3>
+                                <p class="fr-tile__detail" id="stat-score">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile">
+                            <div class="fr-tile__body">
+                                <h3 class="fr-tile__title">Niveau</h3>
+                                <p class="fr-tile__detail" id="stat-niveau">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alert-zone" class="fr-mt-2w"></div>
+        </section>
+
+        <!-- Page : Import fichier -->
+        <section id="page-import-fichier" class="page" style="display:none;">
+            <h1>Import fichier</h1>
+            <p class="fr-text--sm">Traitez un fichier complet (JSON, CSV, XLSX, DOCX, PDF). Le fichier est traité localement.</p>
+
+            <!-- Choix du mode d'import -->
+            <fieldset class="fr-fieldset fr-mb-3w">
+                <legend class="fr-fieldset__legend">Mode d'import</legend>
+                <div class="fr-fieldset__content">
+                    <div class="fr-radio-group">
+                        <input type="radio" id="import-mode-upload" name="import-mode" value="upload" checked>
+                        <label class="fr-label" for="import-mode-upload">Téléverser un fichier (upload)</label>
+                    </div>
+                    <div class="fr-radio-group">
+                        <input type="radio" id="import-mode-local" name="import-mode" value="local">
+                        <label class="fr-label" for="import-mode-local">Chemin local (fichiers volumineux)</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Zone upload -->
+            <div id="zone-upload">
+                <div class="fr-upload-group">
+                    <label class="fr-label" for="file-upload">
+                        Fichier à anonymiser
+                        <span class="fr-hint-text">Formats acceptés : JSON, CSV, XLSX, DOCX, PDF, TXT, ODS, ODT, MD (400 Mo max)</span>
+                    </label>
+                    <input class="fr-upload" type="file" id="file-upload"
+                        accept=".json,.csv,.tsv,.xlsx,.xls,.ods,.docx,.odt,.pdf,.txt,.md">
+                </div>
+                <div id="upload-status" class="fr-mt-1w" style="display:none;">
+                    <p class="fr-text--sm" id="upload-info"></p>
+                </div>
+            </div>
+
+            <!-- Zone chemin local (cachée par défaut) -->
+            <div id="zone-local" style="display:none;">
+                <div class="fr-input-group">
+                    <label class="fr-label" for="input-path">Chemin du fichier</label>
+                    <input class="fr-input" type="text" id="input-path" placeholder="/chemin/vers/fichier.json">
+                </div>
+            </div>
+
+            <!-- Mapping -->
+            <fieldset class="fr-fieldset fr-mt-3w fr-mb-2w">
+                <legend class="fr-fieldset__legend">Mapping (optionnel — pour les fichiers structurés)</legend>
+                <div class="fr-fieldset__content">
+
+                    <div class="fr-upload-group fr-mb-2w">
+                        <label class="fr-label" for="mapping-upload">
+                            Charger un fichier mapping JSON
+                            <span class="fr-hint-text">Le contenu sera affiché ci-dessous pour vérification</span>
+                        </label>
+                        <input class="fr-upload" type="file" id="mapping-upload" accept=".json">
+                    </div>
+
+                    <div class="fr-input-group fr-mb-2w">
+                        <label class="fr-label" for="input-mapping-path">Ou chemin local du mapping</label>
+                        <input class="fr-input" type="text" id="input-mapping-path" placeholder="/chemin/vers/mapping.json">
+                    </div>
+
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="mapping-json">Mapping JSON (ou cliquez sur "Générer" pour une proposition automatique)</label>
+                        <textarea class="fr-input" id="mapping-json" rows="8" placeholder='{"champs_sensibles": {}, "texte_libre": []}'></textarea>
+                    </div>
+                    <div class="fr-mt-1w">
+                        <button class="fr-btn fr-btn--secondary fr-btn--sm" id="btn-generer-mapping">Générer le mapping automatiquement</button>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="file-mode">Mode</label>
+                        <select class="fr-select" id="file-mode">
+                            <option value="pseudo">Pseudonymisation</option>
+                            <option value="anon">Anonymisation</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="file-detection">Détection</label>
+                        <select class="fr-select" id="file-detection">
+                            <option value="hybrid">Hybrid</option>
+                            <option value="regex">Regex seul</option>
+                            <option value="ner">NER seul</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="file-limit">Limite (0 = tous)</label>
+                        <input class="fr-input" type="number" id="file-limit" min="0" value="0" placeholder="0">
+                    </div>
+                </div>
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters fr-mb-2w">
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-checkbox-group">
+                        <input type="checkbox" id="file-fort" name="file-fort">
+                        <label class="fr-label" for="file-fort">Mode fort</label>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-checkbox-group">
+                        <input type="checkbox" id="file-tech" name="file-tech">
+                        <label class="fr-label" for="file-tech">Détection technique</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fr-mt-2w">
+                <button class="fr-btn" id="btn-traiter-fichier">Traiter le fichier</button>
+                <button class="fr-btn fr-btn--secondary fr-ml-2w" id="btn-dry-run">Aperçu (100 enreg.)</button>
+            </div>
+
+            <div id="file-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Total</h3>
+                            <p class="fr-tile__detail" id="file-total">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Traités</h3>
+                            <p class="fr-tile__detail" id="file-traites">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Remplacements</h3>
+                            <p class="fr-tile__detail" id="file-remplacements">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Durée</h3>
+                            <p class="fr-tile__detail" id="file-duree">0s</p>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="fr-callout fr-mt-2w">
+                    <p id="file-output-path"></p>
+                    <p id="file-csv-path"></p>
+                    <div id="file-download-zone" class="fr-mt-2w"></div>
+                </div>
+            </div>
+
+            <div id="file-alert" class="fr-mt-2w"></div>
+        </section>
+
+        <!-- Page : Correspondances -->
+        <section id="page-correspondances" class="page" style="display:none;">
+            <h1>Correspondances</h1>
+            <p class="fr-text--sm">Table des correspondances jeton / valeur originale. Les correspondances sont générées après chaque pseudonymisation.</p>
+            <div class="fr-input-group fr-mb-2w">
+                <label class="fr-label" for="search-correspondances">Rechercher</label>
+                <input class="fr-input" type="search" id="search-correspondances" placeholder="Rechercher un jeton ou une valeur...">
+            </div>
+            <div class="fr-table" id="table-correspondances">
+                <table>
+                    <thead><tr><th>Type</th><th>Jeton</th><th>Valeur originale</th></tr></thead>
+                    <tbody id="tbody-correspondances"></tbody>
+                </table>
+            </div>
+            <button class="fr-btn fr-btn--secondary fr-mt-2w" id="btn-export-csv">Exporter en CSV</button>
+        </section>
+
+        <!-- Page : Restauration -->
+        <section id="page-restauration" class="page" style="display:none;">
+            <h1>Restauration</h1>
+            <p class="fr-text--sm">Restaurez un texte pseudonymisé en utilisant les correspondances en mémoire.</p>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="input-restauration">Texte pseudonymisé</label>
+                        <textarea class="fr-input" id="input-restauration" rows="10" placeholder="[PERSONNE_1], email [EMAIL_1]..."></textarea>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-6">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="output-restauration">Texte restauré</label>
+                        <textarea class="fr-input" id="output-restauration" rows="10" readonly></textarea>
+                    </div>
+                </div>
+            </div>
+            <button class="fr-btn fr-mt-2w" id="btn-restaurer">Restaurer</button>
+        </section>
+
+        <!-- Page : Analyse fichier -->
+        <section id="page-analyse" class="page" style="display:none;">
+            <h1>Analyse de fichier</h1>
+            <p class="fr-text--sm">Explorez la structure d'un fichier et extrayez les entités PII sans anonymiser.</p>
+
+            <div class="fr-upload-group fr-mb-2w">
+                <label class="fr-label" for="analyse-file-upload">
+                    Charger un fichier à analyser
+                    <span class="fr-hint-text">JSON, CSV, XLSX, DOCX, PDF, TXT (le fichier est uploadé puis analysé)</span>
+                </label>
+                <input class="fr-upload" type="file" id="analyse-file-upload" accept=".json,.csv,.tsv,.xlsx,.xls,.ods,.docx,.odt,.pdf,.txt,.md">
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-8">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="analyse-path">Ou chemin local</label>
+                        <input class="fr-input" type="text" id="analyse-path" placeholder="/chemin/vers/fichier.json">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-2">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="analyse-limit">Limite</label>
+                        <input class="fr-input" type="number" id="analyse-limit" min="0" value="0" placeholder="0">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-2">
+                    <button class="fr-btn fr-mt-4w" id="btn-analyser">Analyser</button>
+                </div>
+            </div>
+
+            <div id="analyse-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Format</h3>
+                            <p class="fr-tile__detail" id="analyse-format">-</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Enregistrements</h3>
+                            <p class="fr-tile__detail" id="analyse-total">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Champs</h3>
+                            <p class="fr-tile__detail" id="analyse-champs">0</p>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="fr-table fr-mt-2w">
+                    <table>
+                        <caption>Structure du fichier</caption>
+                        <thead><tr><th scope="col">Champ</th><th scope="col">Type</th><th scope="col">Exemple</th></tr></thead>
+                        <tbody id="tbody-analyse"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="fr-mt-4w">Extraction d'entités</h2>
+            <p class="fr-text--sm">Détectez les entités PII dans un texte ou un fichier sans anonymiser.</p>
+
+            <div class="fr-upload-group fr-mb-2w">
+                <label class="fr-label" for="extract-file-upload">
+                    Charger un fichier
+                    <span class="fr-hint-text">Le contenu texte sera extrait et analysé</span>
+                </label>
+                <input class="fr-upload" type="file" id="extract-file-upload" accept=".txt,.md,.csv,.json,.docx,.pdf">
+            </div>
+            <div class="fr-input-group fr-mb-2w">
+                <label class="fr-label" for="extract-path">Ou chemin local</label>
+                <input class="fr-input" type="text" id="extract-path" placeholder="/chemin/vers/fichier.txt">
+            </div>
+            <div class="fr-input-group">
+                <label class="fr-label" for="extract-texte">Ou coller du texte directement</label>
+                <textarea class="fr-input" id="extract-texte" rows="6" placeholder="Collez un texte pour détecter les entités PII…"></textarea>
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-select-group">
+                        <label class="fr-label" for="extract-mode">Mode de détection</label>
+                        <select class="fr-select" id="extract-mode">
+                            <option value="hybrid">Hybrid</option>
+                            <option value="regex">Regex seul</option>
+                            <option value="ner">NER seul</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <div class="fr-checkbox-group fr-mt-4w">
+                        <input type="checkbox" id="extract-fort" name="extract-fort">
+                        <label class="fr-label" for="extract-fort">Mode fort</label>
+                    </div>
+                    <div class="fr-checkbox-group">
+                        <input type="checkbox" id="extract-tech" name="extract-tech">
+                        <label class="fr-label" for="extract-tech">Détection technique</label>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-3">
+                    <button class="fr-btn fr-mt-4w" id="btn-extraire">Extraire les entités</button>
+                </div>
+            </div>
+            <div id="extract-results" class="fr-mt-2w" style="display:none;">
+                <div class="fr-table">
+                    <table>
+                        <caption>Entités détectées</caption>
+                        <thead><tr><th scope="col">Texte</th><th scope="col">Type</th><th scope="col">Source</th><th scope="col">Score</th></tr></thead>
+                        <tbody id="tbody-extract"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="analyse-alert" class="fr-mt-2w"></div>
+        </section>
+
+        <!-- Page : Scoring RGPD -->
+        <section id="page-scoring-rgpd" class="page" style="display:none;">
+            <h1>Scoring RGPD</h1>
+            <p class="fr-text--sm">Évaluez le niveau de risque RGPD d'un texte ou d'un fichier sans pseudonymiser.</p>
+
+            <h2>Scoring texte</h2>
+            <div class="fr-input-group">
+                <label class="fr-label" for="scoring-texte">Texte à évaluer</label>
+                <textarea class="fr-input" id="scoring-texte" rows="6" placeholder="Collez un texte pour évaluer son score RGPD…"></textarea>
+            </div>
+            <div class="fr-mt-2w">
+                <button class="fr-btn" id="btn-scorer-texte">Évaluer le risque</button>
+            </div>
+            <div id="scoring-texte-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Score RGPD</h3>
+                            <p class="fr-tile__detail" id="scoring-score">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Niveau</h3>
+                            <p class="fr-tile__detail" id="scoring-niveau">-</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Entités</h3>
+                            <p class="fr-tile__detail" id="scoring-entites">0</p>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="fr-table fr-mt-2w">
+                    <table>
+                        <caption>Détail par catégorie</caption>
+                        <thead><tr><th scope="col">Catégorie</th><th scope="col">Détections</th></tr></thead>
+                        <tbody id="tbody-scoring"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="fr-mt-4w">Scoring fichier</h2>
+            <div class="fr-grid-row fr-grid-row--gutters">
+                <div class="fr-col-12 fr-col-md-8">
+                    <div class="fr-input-group">
+                        <label class="fr-label" for="scoring-fichier-path">Chemin du fichier</label>
+                        <input class="fr-input" type="text" id="scoring-fichier-path" placeholder="/chemin/vers/fichier.json">
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <button class="fr-btn fr-mt-4w" id="btn-scorer-fichier">Scorer le fichier</button>
+                </div>
+            </div>
+            <div class="fr-input-group fr-mt-2w">
+                <label class="fr-label" for="scoring-mapping-path">Chemin du mapping (optionnel)</label>
+                <input class="fr-input" type="text" id="scoring-mapping-path" placeholder="/chemin/vers/mapping.json">
+            </div>
+            <div id="scoring-fichier-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Analysés</h3>
+                            <p class="fr-tile__detail" id="scoring-f-analyses">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-3">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Score moyen</h3>
+                            <p class="fr-tile__detail" id="scoring-f-moyen">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-6">
+                        <div class="fr-table">
+                            <table>
+                                <caption>Distribution des niveaux</caption>
+                                <thead><tr><th scope="col">Niveau</th><th scope="col">Nombre</th></tr></thead>
+                                <tbody id="tbody-scoring-distrib"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="scoring-alert" class="fr-mt-2w"></div>
+        </section>
+
+        <!-- Page : Diagnostic -->
+        <section id="page-diagnostic" class="page active">
+            <h1>Diagnostic</h1>
+            <p class="fr-text--sm">Comparez les moteurs de détection et vérifiez la qualité de l'anonymisation.</p>
+
+            <h2>Comparer les moteurs</h2>
+            <p class="fr-text--sm">Comparez regex, NER et hybrid sur le même texte pour comprendre l'apport de chaque moteur.</p>
+            <div class="fr-accordions-group fr-mb-3w">
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="acc-exemple-diagnostic">Utiliser le texte d'exemple (couvre tous les types de PII)</button>
+                    </h3>
+                    <div class="fr-collapse" id="acc-exemple-diagnostic">
+                        <p class="fr-text--sm">Ce texte synthétique contient tous les types de données personnelles détectables : noms composés, particules, prénoms isolés dans le texte libre, emails, téléphones (français et international), IBAN, carte bancaire, CVV, NIR, SIRET, adresse postale, date de naissance, IPv4, adresse MAC, plaque d'immatriculation, et des contextes négatifs (n° de dossier, page, montant en euros) qui ne doivent <strong>pas</strong> être anonymisés.</p>
+                        <button class="fr-btn fr-btn--sm fr-btn--secondary" id="btn-exemple-diagnostic">Charger le texte d'exemple</button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="fr-input-group">
+                <label class="fr-label" for="compare-texte">Texte à comparer</label>
+                <textarea class="fr-input" id="compare-texte" rows="4" placeholder="Collez un texte ou chargez un fichier ci-dessous…"></textarea>
+            </div>
+            <div class="fr-upload-group fr-mb-2w">
+                <label class="fr-label" for="compare-file-upload">
+                    Ou charger un fichier texte
+                    <span class="fr-hint-text">TXT, MD, CSV, JSON — le contenu sera chargé dans le champ ci-dessus</span>
+                </label>
+                <input class="fr-upload" type="file" id="compare-file-upload" accept=".txt,.md,.csv,.json,.docx">
+            </div>
+            <div class="fr-grid-row fr-grid-row--gutters fr-mt-2w">
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-checkbox-group">
+                        <input type="checkbox" id="compare-fort" name="compare-fort">
+                        <label class="fr-label" for="compare-fort">Mode fort (prénoms isolés, plaques, GPS)</label>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <div class="fr-checkbox-group">
+                        <input type="checkbox" id="compare-tech" name="compare-tech">
+                        <label class="fr-label" for="compare-tech">Détection technique (IPv4, MAC, JWT, API keys)</label>
+                    </div>
+                </div>
+                <div class="fr-col-12 fr-col-md-4">
+                    <button class="fr-btn" id="btn-comparer">Comparer</button>
+                </div>
+            </div>
+            <div id="compare-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Regex seul</h3>
+                            <p class="fr-tile__detail" id="compare-regex">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">NER seul</h3>
+                            <p class="fr-tile__detail" id="compare-ner">0</p>
+                        </div></div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-tile"><div class="fr-tile__body">
+                            <h3 class="fr-tile__title">Hybrid</h3>
+                            <p class="fr-tile__detail" id="compare-hybrid">0</p>
+                        </div></div>
+                    </div>
+                </div>
+                <div class="fr-callout fr-mt-2w">
+                    <p id="compare-apport-ner"></p>
+                    <p id="compare-apport-regex"></p>
+                </div>
+
+                <h3 class="fr-mt-3w">Rendu anonymisé par mode</h3>
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>Regex</strong></label>
+                            <textarea class="fr-input" id="rendu-regex" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4" id="col-regex-fort">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>Regex + fort</strong> <span class="fr-badge fr-badge--sm fr-badge--info" id="badge-regex-fort" style="display:none;">recommandé</span></label>
+                            <textarea class="fr-input" id="rendu-regex-fort" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>Regex + fort + tech</strong></label>
+                            <textarea class="fr-input" id="rendu-regex-fort-tech" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="fr-grid-row fr-grid-row--gutters fr-mt-1w">
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>NER (GLiNER2)</strong></label>
+                            <textarea class="fr-input" id="rendu-ner" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>Hybrid</strong></label>
+                            <textarea class="fr-input" id="rendu-hybrid" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                    <div class="fr-col-12 fr-col-md-4">
+                        <div class="fr-input-group">
+                            <label class="fr-label"><strong>Hybrid + fort + tech</strong> <span class="fr-badge fr-badge--sm fr-badge--info" id="badge-hybrid-fort-tech" style="display:none;">recommandé</span></label>
+                            <textarea class="fr-input" id="rendu-hybrid-fort-tech" rows="5" readonly style="font-size:0.75rem;background:var(--background-alt-grey);"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="fr-mt-3w">Détail par entité</h3>
+                <div class="fr-table fr-mt-2w">
+                    <table>
+                        <caption>Comparaison côte à côte</caption>
+                        <thead><tr><th scope="col">Entité</th><th scope="col">Regex</th><th scope="col">NER (score)</th><th scope="col">Hybrid (source)</th></tr></thead>
+                        <tbody id="tbody-compare"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="fr-mt-4w">Vérifier un texte anonymisé</h2>
+            <p class="fr-text--sm">Passez un texte déjà anonymisé pour vérifier qu'il ne contient plus de PII détectable.</p>
+            <div class="fr-input-group">
+                <label class="fr-label" for="validate-texte">Texte anonymisé à vérifier</label>
+                <textarea class="fr-input" id="validate-texte" rows="4" placeholder="[PERSONNE_1] a contacté [EMAIL_1]…"></textarea>
+            </div>
+            <button class="fr-btn fr-mt-2w" id="btn-valider">Vérifier</button>
+            <div id="validate-results" class="fr-mt-4w" style="display:none;">
+                <div class="fr-callout" id="validate-callout"></div>
+                <div class="fr-table fr-mt-2w" id="validate-table" style="display:none;">
+                    <table>
+                        <caption>Fuites détectées</caption>
+                        <thead><tr><th scope="col">Texte</th><th scope="col">Type</th><th scope="col">Score</th></tr></thead>
+                        <tbody id="tbody-validate"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="diagnostic-alert" class="fr-mt-2w"></div>
+        </section>
+
+        <!-- Page : Documentation -->
+        <section id="page-documentation" class="page" style="display:none;">
+            <div class="fr-grid-row">
+            <div class="fr-col-12 fr-col-md-8">
+            <h1>Documentation</h1>
+            <p class="fr-text--lg">Outil d'anonymisation PII 100 % local. Combine GLiNER2 (NER contextuel) et regex avec validateurs mathématiques. Aucune donnée personnelle ne quitte votre machine.</p>
+
+            <nav class="fr-summary" aria-labelledby="fr-summary-title">
+                <p class="fr-summary__title" id="fr-summary-title">Sommaire</p>
+                <ol class="fr-summary__list">
+                    <li><a class="fr-summary__link" href="#doc-principe">Principe de fonctionnement</a></li>
+                    <li><a class="fr-summary__link" href="#doc-install">Installation</a></li>
+                    <li><a class="fr-summary__link" href="#doc-premiers-pas">Premiers pas (30 secondes)</a></li>
+                    <li><a class="fr-summary__link" href="#doc-modes">Modes de détection</a></li>
+                    <li><a class="fr-summary__link" href="#doc-formats">Formats supportés</a></li>
+                    <li><a class="fr-summary__link" href="#doc-cli">Ligne de commande (CLI)</a></li>
+                    <li><a class="fr-summary__link" href="#doc-pages">Guide page par page</a></li>
+                    <li><a class="fr-summary__link" href="#doc-glossaire">Glossaire</a></li>
+                    <li><a class="fr-summary__link" href="#doc-faq">Questions fréquentes</a></li>
+                </ol>
+            </nav>
+
+            <!-- PRINCIPE -->
+            <h2 class="fr-mt-5w" id="doc-principe">Principe de fonctionnement</h2>
+            <p>L'outil détecte automatiquement les <strong>données personnelles</strong> (PII) dans vos fichiers et les remplace par des jetons anonymes (<code>[PERSONNE_1]</code>, <code>[EMAIL_1]</code>, etc.).</p>
+            <p>Il combine <strong>deux moteurs de détection</strong> complémentaires :</p>
+            <div class="fr-table">
+                <table>
+                    <caption>Les deux moteurs de détection</caption>
+                    <thead>
+                        <tr><th scope="col">Moteur</th><th scope="col">Comment ça marche</th><th scope="col">Force</th><th scope="col">Limite</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Regex + dictionnaires</strong></td>
+                            <td>Patterns fixes (email, téléphone, IBAN) + 884 000 noms de famille + 169 000 prénoms</td>
+                            <td>Rapide, déterministe, validateurs mathématiques (Luhn, mod-97)</td>
+                            <td>Ne comprend pas le contexte ("Rose" = prénom ou fleur ?)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GLiNER2 (NER)</strong></td>
+                            <td>Modèle d'intelligence artificielle qui comprend le contexte sémantique</td>
+                            <td>Détecte les noms dans le texte libre ("Alexandra m'a proposé…")</td>
+                            <td>Plus lent, peut avoir des faux positifs</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Le mode <strong>hybrid</strong> (par défaut) utilise les deux moteurs simultanément et fusionne les résultats pour une couverture maximale.</p>
+
+            <div class="fr-callout fr-mt-2w">
+                <p><strong>Exemple concret</strong></p>
+                <p>Texte original : <em>"Bonjour, je suis Pierre Durand, email pierre.durand@example.com. Alexandra m'a proposé un tarif."</em></p>
+                <p>Résultat : <em>"Bonjour, je suis <code>[PERSONNE_1]</code>, email <code>[EMAIL_1]</code>. <code>[PERSONNE_2]</code> m'a proposé un tarif."</em></p>
+                <p>"Pierre Durand" et "pierre.durand@example.com" sont détectés par les deux moteurs. <strong>"Alexandra"</strong> n'est détectée que par GLiNER2 (NER) — les regex l'auraient ratée.</p>
+            </div>
+
+            <!-- INSTALLATION -->
+            <h2 class="fr-mt-5w" id="doc-install">Installation</h2>
+            <pre><code># Cloner le dépôt
+git clone [url-du-depot]
+cd anonymisation-synthesia
+
+# Installer les dépendances (crée le venv)
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+# Lancer le serveur
+.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8091</code></pre>
+            <p>Au premier lancement, le modèle GLiNER2 (~800 Mo) est téléchargé automatiquement depuis HuggingFace. Les lancements suivants utilisent le cache local.</p>
+
+            <!-- PREMIERS PAS -->
+            <h2 class="fr-mt-5w" id="doc-premiers-pas">Premiers pas (30 secondes)</h2>
+            <ol>
+                <li>Ouvrez l'onglet <a href="#pseudonymisation">Pseudonymisation</a></li>
+                <li>Collez un texte contenant des données personnelles dans le champ de gauche</li>
+                <li>Cliquez sur <strong>Pseudonymiser</strong></li>
+                <li>Le texte anonymisé apparaît à droite avec un score RGPD</li>
+            </ol>
+            <p>Pour traiter un fichier complet (JSON, CSV, XLSX, DOCX, PDF) :</p>
+            <ol>
+                <li>Ouvrez l'onglet <a href="#import-fichier">Import fichier</a></li>
+                <li>Choisissez votre fichier (upload ou chemin local)</li>
+                <li>Pour les fichiers structurés (JSON, CSV) : cliquez sur <strong>Générer le mapping</strong> pour configurer les champs à anonymiser</li>
+                <li>Cliquez sur <strong>Traiter le fichier</strong></li>
+                <li>Téléchargez le résultat anonymisé et les correspondances CSV</li>
+            </ol>
+
+            <!-- MODES -->
+            <h2 class="fr-mt-5w" id="doc-modes">Modes de détection</h2>
+
+            <h3>En une phrase</h3>
+            <ul>
+                <li><strong>Regex</strong> : cherche des <strong>patterns fixes</strong> (un email c'est <code>xxx@xxx.xx</code>, un téléphone c'est <code>06 xx xx xx xx</code>). Rapide, fiable sur les formats connus, mais ne comprend rien au texte.</li>
+                <li><strong>NER</strong> : un <strong>cerveau artificiel</strong> (GLiNER2) qui <strong>lit</strong> le texte et comprend que "Alexandra m'a proposé un tarif" → Alexandra est une personne. Il comprend le contexte, mais il peut se tromper.</li>
+                <li><strong>Hybrid</strong> : les deux ensemble. Le regex attrape les emails/tel/IBAN avec certitude, le NER attrape les noms cachés dans les phrases.</li>
+            </ul>
+
+            <h3>Qui détecte quoi ?</h3>
+            <div class="fr-table">
+                <table>
+                    <caption>Exemples concrets de détection</caption>
+                    <thead>
+                        <tr><th scope="col">Ce qu'on veut détecter</th><th scope="col">Regex</th><th scope="col">NER</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Email dans un champ structuré</td><td>Oui</td><td>Oui</td></tr>
+                        <tr><td>Téléphone 06 12 34 56 78</td><td>Oui</td><td>Oui</td></tr>
+                        <tr><td>IBAN (vérifié mathématiquement)</td><td>Oui (mod-97)</td><td>Oui (sans vérification)</td></tr>
+                        <tr><td><strong>"Alexandra m'a proposé un tarif"</strong></td><td><strong>Non</strong></td><td><strong>Oui</strong> — c'est là que le NER brille</td></tr>
+                        <tr><td><strong>"Jai la preuve"</strong> (faute de frappe)</td><td>Le laisse tranquille</td><td>Détecte "Jai" comme un nom (faux positif)</td></tr>
+                        <tr><td>"300 euros"</td><td>Le laisse tranquille</td><td>Le laisse tranquille</td></tr>
+                        <tr><td>"page 42"</td><td>Le laisse tranquille (contexte négatif)</td><td>Le laisse tranquille</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Quel mode choisir ?</h3>
+            <div class="fr-table">
+                <table>
+                    <caption>Recommandation par usage</caption>
+                    <thead>
+                        <tr><th scope="col">Votre besoin</th><th scope="col">Mode recommandé</th><th scope="col">Pourquoi</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Anonymiser pour partager un fichier</td>
+                            <td><strong>Regex + fort</strong></td>
+                            <td>Rapide (~15 min pour 30 000 enregistrements), peu de faux positifs</td>
+                        </tr>
+                        <tr>
+                            <td>Détecter le maximum possible</td>
+                            <td><strong>Hybrid</strong></td>
+                            <td>Couverture maximale, mais plus lent et quelques faux positifs</td>
+                        </tr>
+                        <tr>
+                            <td>Anonymiser puis classifier les textes</td>
+                            <td><strong>Regex + fort</strong></td>
+                            <td>Le texte reste lisible pour un classifieur (pas de mots courants masqués)</td>
+                        </tr>
+                        <tr>
+                            <td>Comprendre ce que chaque moteur détecte</td>
+                            <td>Page <a href="#diagnostic">Diagnostic</a></td>
+                            <td>Compare les 3 modes côte à côte sur votre texte</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="fr-callout fr-mt-2w">
+                <p><strong>Astuce</strong> : utilisez l'onglet <a href="#diagnostic">Diagnostic</a> pour coller un extrait de vos données et voir la différence entre les 3 modes. Cochez "Mode fort" et "Détection technique" pour voir toutes les options.</p>
+            </div>
+
+            <h3>Comparaison technique</h3>
+            <div class="fr-table">
+                <table>
+                    <caption>Comparaison des 3 modes</caption>
+                    <thead>
+                        <tr><th scope="col">Mode</th><th scope="col">Détection</th><th scope="col">Vitesse</th><th scope="col">Quand l'utiliser</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Hybrid</strong> (défaut)</td>
+                            <td>Regex + GLiNER2 combinés</td>
+                            <td>~0.5s par texte</td>
+                            <td>Usage général — couverture maximale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Regex seul</strong></td>
+                            <td>Patterns + dictionnaires uniquement</td>
+                            <td>Très rapide (~0.01s)</td>
+                            <td>Fichiers volumineux, données structurées simples</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NER seul</strong></td>
+                            <td>GLiNER2 uniquement</td>
+                            <td>~0.2s par texte</td>
+                            <td>Texte libre, noms ambigus, détection contextuelle</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Utilisez l'onglet <a href="#diagnostic">Diagnostic</a> pour comparer les résultats des 3 modes sur le même texte.</p>
+
+            <h3>Options complémentaires</h3>
+            <div class="fr-table">
+                <table>
+                    <caption>Options de détection</caption>
+                    <thead>
+                        <tr><th scope="col">Option</th><th scope="col">Ce qu'elle fait</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Mode fort</strong></td><td>Détection agressive : prénoms isolés, salutations ("Bonjour Marie"), dates de naissance, plaques d'immatriculation, coordonnées GPS</td></tr>
+                        <tr><td><strong>Détection technique</strong></td><td>Adresses IPv4/IPv6, adresses MAC, tokens JWT, clés API</td></tr>
+                        <tr><td><strong>Whitelist</strong></td><td>Mots à ne jamais anonymiser (noms d'entreprises : ORANGE, SFR, etc.)</td></tr>
+                        <tr><td><strong>Blacklist</strong></td><td>Mots à toujours anonymiser (noms spécifiques que les moteurs pourraient rater)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FORMATS -->
+            <h2 class="fr-mt-5w" id="doc-formats">Formats supportés</h2>
+            <div class="fr-table">
+                <table>
+                    <caption>Formats en entrée et sortie</caption>
+                    <thead>
+                        <tr><th scope="col">Format</th><th scope="col">Entrée</th><th scope="col">Sortie</th><th scope="col">Dépendance</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>JSON</td><td>Oui</td><td>Oui</td><td>Aucune</td></tr>
+                        <tr><td>CSV / TSV</td><td>Oui</td><td>Oui</td><td>Aucune</td></tr>
+                        <tr><td>TXT / MD</td><td>Oui</td><td>Oui</td><td>Aucune</td></tr>
+                        <tr><td>XLSX / XLS</td><td>Oui</td><td>Oui</td><td>openpyxl</td></tr>
+                        <tr><td>ODS / ODT</td><td>Oui</td><td>Oui</td><td>odfpy</td></tr>
+                        <tr><td>DOCX</td><td>Oui</td><td>Oui</td><td>python-docx</td></tr>
+                        <tr><td>PDF</td><td>Oui</td><td>Texte (.txt)</td><td>pdfplumber</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Les documents non structurés (DOCX, PDF, TXT) sont traités comme du texte brut — pas besoin de mapping.</p>
+
+            <!-- CLI -->
+            <h2 class="fr-mt-5w" id="doc-cli">Ligne de commande (CLI)</h2>
+            <div class="fr-accordions-group">
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="cli-base">Commandes de base</button>
+                    </h3>
+                    <div class="fr-collapse" id="cli-base">
+                        <pre><code># Pseudonymiser un texte brut (DOCX, PDF, TXT — pas besoin de mapping)
+.venv/bin/python3 cli.py document.docx --pseudo --mode hybrid
+
+# Pseudonymiser un fichier structuré avec mapping
+.venv/bin/python3 cli.py export.json --mapping mapping.json --pseudo --mode hybrid
+
+# Générer un mapping automatiquement
+.venv/bin/python3 cli.py export.json --mapping-generate
+
+# Aperçu sur 100 enregistrements (dry-run)
+.venv/bin/python3 cli.py export.json --mapping mapping.json --dry-run
+
+# Scoring RGPD sans anonymiser
+.venv/bin/python3 cli.py export.json --mapping mapping.json --score-only</code></pre>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="cli-avance">Options avancées</button>
+                    </h3>
+                    <div class="fr-collapse" id="cli-avance">
+                        <pre><code># Mode fort + détection technique
+.venv/bin/python3 cli.py fichier.json --mapping mapping.json --pseudo --fort --tech
+
+# Traiter un dossier entier
+.venv/bin/python3 cli.py --input-dir dossier/ --mapping mapping.json --pseudo
+
+# Choisir le mode de détection
+--mode regex    # Regex seul (rapide)
+--mode ner      # GLiNER2 seul (contextuel)
+--mode hybrid   # Les deux combinés (défaut)</code></pre>
+                    </div>
+                </section>
+            </div>
+
+            <!-- GUIDE PAGES -->
+            <h2 class="fr-mt-5w" id="doc-pages">Guide page par page</h2>
+            <div class="fr-table">
+                <table>
+                    <caption>Les 8 pages de l'interface</caption>
+                    <thead>
+                        <tr><th scope="col">Page</th><th scope="col">Fonction</th><th scope="col">Quand l'utiliser</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><a href="#pseudonymisation">Pseudonymisation</a></td><td>Coller du texte et le pseudonymiser en direct</td><td>Test rapide, texte court</td></tr>
+                        <tr><td><a href="#import-fichier">Import fichier</a></td><td>Traiter un fichier complet (upload ou chemin local)</td><td>Fichiers structurés, gros volumes</td></tr>
+                        <tr><td><a href="#analyse">Analyse</a></td><td>Explorer la structure d'un fichier + extraire les entités</td><td>Avant de traiter un nouveau fichier</td></tr>
+                        <tr><td><a href="#scoring-rgpd">Scoring RGPD</a></td><td>Évaluer le risque sans anonymiser</td><td>Audit RGPD, priorisation</td></tr>
+                        <tr><td><a href="#correspondances">Correspondances</a></td><td>Table des jetons et valeurs originales</td><td>Après une pseudonymisation</td></tr>
+                        <tr><td><a href="#restauration">Restauration</a></td><td>Inverser la pseudonymisation</td><td>Quand les données originales sont nécessaires</td></tr>
+                        <tr><td><a href="#diagnostic">Diagnostic</a></td><td>Comparer les moteurs + vérifier la qualité</td><td>Tuning, contrôle qualité</td></tr>
+                        <tr><td><a href="#documentation">Documentation</a></td><td>Cette page</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- GLOSSAIRE -->
+            <h2 class="fr-mt-5w" id="doc-glossaire">Glossaire</h2>
+            <div class="fr-table">
+                <table>
+                    <thead><tr><th scope="col">Terme</th><th scope="col">Définition</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>PII</strong></td><td>Personally Identifiable Information — toute donnée permettant d'identifier une personne (nom, email, téléphone, IBAN, etc.)</td></tr>
+                        <tr><td><strong>Pseudonymisation</strong></td><td>Remplacement des données par des jetons (<code>[PERSONNE_1]</code>) — réversible avec les correspondances</td></tr>
+                        <tr><td><strong>Anonymisation</strong></td><td>Remplacement irréversible par <code>***</code> — les données originales sont perdues</td></tr>
+                        <tr><td><strong>NER</strong></td><td>Named Entity Recognition — détection d'entités nommées par intelligence artificielle</td></tr>
+                        <tr><td><strong>GLiNER2</strong></td><td>Modèle NER zero-shot (205M paramètres) utilisé pour la détection contextuelle</td></tr>
+                        <tr><td><strong>Mapping</strong></td><td>Fichier JSON décrivant la structure du fichier à traiter (champs sensibles, texte libre, whitelist)</td></tr>
+                        <tr><td><strong>Score RGPD</strong></td><td>Note de risque calculée selon les types de données détectées (direct, finance, technique, indirect)</td></tr>
+                        <tr><td><strong>Correspondances</strong></td><td>Table associant chaque jeton à sa valeur originale (permet la restauration)</td></tr>
+                        <tr><td><strong>Hybrid</strong></td><td>Mode combinant regex et NER pour une couverture maximale</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- FAQ -->
+            <h2 class="fr-mt-5w" id="doc-faq">Questions fréquentes</h2>
+            <div class="fr-accordions-group">
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-1">Mes données sont-elles envoyées sur internet ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-1">
+                        <p><strong>Non.</strong> Tout le traitement s'exécute sur votre machine. Le modèle GLiNER2 est téléchargé une seule fois au premier lancement, puis fonctionne hors ligne. Aucune donnée personnelle ne transite par internet.</p>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-2">Quelle est la différence entre pseudonymisation et anonymisation ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-2">
+                        <p>La <strong>pseudonymisation</strong> remplace les données par des jetons (<code>[PERSONNE_1]</code>) et sauvegarde les correspondances dans un fichier CSV. Vous pouvez restaurer les données originales à tout moment.</p>
+                        <p>L'<strong>anonymisation</strong> remplace les données par <code>***</code>. C'est irréversible — les données originales sont perdues.</p>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-3">Pourquoi ai-je besoin d'un mapping pour mon fichier JSON ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-3">
+                        <p>Le mapping indique à l'outil <strong>quels champs contiennent des données personnelles</strong> et comment les traiter. Sans mapping, l'outil ne sait pas que le champ <code>Report.Firstname</code> contient un prénom.</p>
+                        <p>Pour les documents non structurés (DOCX, PDF, TXT), le mapping n'est pas nécessaire — tout le texte est scanné automatiquement.</p>
+                        <p>Cliquez sur <strong>Générer le mapping automatiquement</strong> pour obtenir une proposition basée sur la structure du fichier.</p>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-4">Quel mode de détection choisir ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-4">
+                        <p>Le mode <strong>hybrid</strong> (défaut) est recommandé pour la plupart des cas. Il combine les forces des deux moteurs.</p>
+                        <p>Utilisez <strong>regex seul</strong> si vous avez un très gros fichier (> 10 000 enregistrements) et que la vitesse est prioritaire.</p>
+                        <p>Utilisez <strong>NER seul</strong> pour du texte libre avec des noms ambigus que les regex pourraient rater.</p>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-5">Comment vérifier que l'anonymisation est complète ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-5">
+                        <p>Utilisez l'onglet <a href="#diagnostic">Diagnostic</a> > <strong>Vérifier un texte anonymisé</strong>. Collez le texte déjà anonymisé et l'outil repassera GLiNER2 dessus pour détecter les éventuelles fuites de données personnelles.</p>
+                    </div>
+                </section>
+                <section class="fr-accordion">
+                    <h3 class="fr-accordion__title">
+                        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-6">Le premier traitement est lent, c'est normal ?</button>
+                    </h3>
+                    <div class="fr-collapse" id="faq-6">
+                        <p>Oui. Au premier appel NER, le modèle GLiNER2 (~800 Mo) est chargé en mémoire. Cela prend 5 à 30 secondes selon la machine. Les appels suivants sont rapides (~0.2s par texte).</p>
+                    </div>
+                </section>
+            </div>
+
+            </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="fr-footer" id="footer" role="contentinfo">
+        <div class="fr-container">
+            <div class="fr-footer__body">
+                <div class="fr-footer__brand fr-enlarge-link">
+                    <a href="/" title="Gouvernement - Retour à l'accueil">
+                        <p class="fr-logo">Gouvernement</p>
+                    </a>
+                </div>
+                <div class="fr-footer__content">
+                    <p class="fr-footer__content-desc">
+                        Outil d'anonymisation PII 100 % local. Combine GLiNER2 (NER contextuel) et regex avec validateurs mathématiques.
+                        Aucune donnée personnelle ne quitte la machine. Le traitement s'exécute intégralement sur votre poste.
+                    </p>
+                    <ul class="fr-footer__content-list">
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener" href="https://legifrance.gouv.fr">legifrance.gouv.fr</a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener" href="https://gouvernement.fr">gouvernement.fr</a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener" href="https://service-public.fr">service-public.fr</a>
+                        </li>
+                        <li class="fr-footer__content-item">
+                            <a class="fr-footer__content-link" target="_blank" rel="noopener" href="https://data.gouv.fr">data.gouv.fr</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="fr-footer__bottom">
+                <ul class="fr-footer__bottom-list">
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="#">Accessibilité : partiellement conforme</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="/docs" target="_blank">API Swagger</a>
+                    </li>
+                    <li class="fr-footer__bottom-item">
+                        <a class="fr-footer__bottom-link" href="/health" target="_blank">État du service</a>
+                    </li>
+                </ul>
+                <div class="fr-footer__bottom-copy">
+                    <p>Sauf mention explicite de propriété intellectuelle détenue par des tiers, les contenus de ce site sont proposés sous
+                        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">licence GPL v3</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/dsfr/js/dsfr.min.js"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>

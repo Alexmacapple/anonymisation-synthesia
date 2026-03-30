@@ -1,0 +1,39 @@
+name: "Traitement par chemin local"
+description: "Utiliser le mode chemin local pour traiter un fichier sans upload"
+priority: medium
+requires_auth: false
+timeout: 60s
+tags: [fichier, chemin-local]
+
+steps:
+  - action: open
+    url: "{base_url}/#import-fichier"
+
+  - action: wait
+    duration: 1s
+
+  # Basculer en mode chemin local
+  - action: click
+    target: "#import-mode-local"
+
+  - action: llm-check
+    description: "Mode chemin local actif"
+    criteria: "Le champ 'Chemin du fichier' est visible. La zone d'upload est masquee."
+    severity: high
+    screenshot: "import-mode-local.png"
+
+  - action: fill
+    target: "#input-path"
+    value: "tests/fixtures/golden-api-loic.json"
+
+  - action: click
+    target: "#btn-traiter-fichier"
+
+  - action: wait
+    duration: 10s
+
+  - action: llm-check
+    description: "Traitement par chemin local reussi"
+    criteria: "Les tuiles de resultats affichent des valeurs non nulles. Pas de message d'erreur."
+    severity: high
+    screenshot: "import-local-ok.png"

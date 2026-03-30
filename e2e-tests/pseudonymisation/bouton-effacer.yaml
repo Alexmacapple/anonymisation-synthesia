@@ -1,0 +1,26 @@
+name: "Bouton effacer"
+description: "Verifier que le bouton Effacer reinitialise les champs"
+priority: low
+requires_auth: false
+timeout: 15s
+tags: [ui, pseudonymisation]
+
+steps:
+  - action: open
+    url: "{base_url}/#pseudonymisation"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#input-texte"
+    value: "Test de texte"
+
+  - action: click
+    target: "#btn-clear"
+
+  - action: llm-check
+    description: "Champs reinitialises"
+    criteria: "Les deux textareas (source et sortie) sont vides. La zone de resultats (tuiles) n'est pas visible."
+    severity: low
+    screenshot: "effacer.png"

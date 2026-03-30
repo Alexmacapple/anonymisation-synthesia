@@ -1,0 +1,29 @@
+name: "Scoring RGPD d'un fichier"
+description: "Evaluer le risque RGPD d'un fichier complet avec distribution par niveau"
+priority: medium
+requires_auth: false
+timeout: 30s
+tags: [scoring, rgpd, fichier]
+
+steps:
+  - action: open
+    url: "{base_url}/#scoring-rgpd"
+
+  - action: wait
+    duration: 1s
+
+  - action: fill
+    target: "#scoring-fichier-path"
+    value: "tests/fixtures/golden-api-loic.json"
+
+  - action: click
+    target: "#btn-scorer-fichier"
+
+  - action: wait
+    duration: 10s
+
+  - action: llm-check
+    description: "Scoring fichier affiche"
+    criteria: "Les tuiles 'Analyses' et 'Score moyen' affichent des valeurs. Le tableau de distribution par niveau (NUL, FAIBLE, MODERE, ELEVE, CRITIQUE) est visible avec des compteurs."
+    severity: high
+    screenshot: "scoring-fichier.png"
