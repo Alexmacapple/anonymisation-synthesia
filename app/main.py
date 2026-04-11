@@ -10,6 +10,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -65,7 +66,15 @@ app = FastAPI(
     version="0.1.0",
     description="API locale d'anonymisation PII — GLiNER2 + regex/dictionnaires",
     lifespan=lifespan,
+    # Désactivation des routes /docs et /redoc par défaut. Réimplémentées plus
+    # bas avec un openapi_url RELATIF, pour fonctionner aussi bien en accès
+    # direct (:7443/docs) qu'à travers le sous-path Tailscale Funnel (/anon/docs).
+    docs_url=None,
+    redoc_url=None,
 )
+# Note : pas de root_path ici. Tailscale Funnel sous-path /anon strip le préfixe
+# avant de transmettre au backend, et le HTML patché utilise des chemins relatifs.
+# root_path="/anon" casserait app.mount("/static", ...) — bug Starlette connu.
 
 app.add_middleware(
     CORSMiddleware,
@@ -85,6 +94,33 @@ app.mount("/static", StaticFiles(directory=_interface_dir), name="static")
 async def index():
     """Sert l'interface web DSFR."""
     return FileResponse(os.path.join(_interface_dir, "index.html"))
+
+
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    """
+    Swagger UI personnalisé avec openapi_url RELATIF.
+
+    Le default FastAPI met url='/openapi.json' (chemin absolu), ce qui casse
+    quand l'API est servie sous un sous-path comme /anon/. Avec un chemin
+    relatif (openapi.json), le navigateur le résout par rapport au document
+    courant, donc :
+    - https://...net:7443/docs       → /openapi.json     ✓
+    - https://...net/anon/docs       → /anon/openapi.json ✓
+    """
+    return get_swagger_ui_html(
+        openapi_url="openapi.json",
+        title="anonymisation-synthesia - Swagger UI",
+    )
+
+
+@app.get("/redoc", include_in_schema=False)
+async def custom_redoc_html():
+    """ReDoc personnalisé avec openapi_url RELATIF — même raison que /docs."""
+    return get_redoc_html(
+        openapi_url="openapi.json",
+        title="anonymisation-synthesia - ReDoc",
+    )
 
 
 # =============================================================
